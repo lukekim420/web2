@@ -2,8 +2,10 @@
 <html>
 <body>
   <canvas id="gameCanvas" width="600" height="600" style="background-color: #FFFFFF;"></canvas>
-  <p id="instructions" style="display: none;">아래의 결과 제출하기 버튼을 눌러 설문조사로 이동해 주세요. 설문조사에 결과를 붙여넣고 제출해 주시면 됩니다. 조사에 응해주셔서 감사합니다.</p>
-  <button id="surveyButton" style="display: none;">Go to survey</button>
+  <p id="instructions" style="display: none;">아래의 결과 복사 버튼을 눌러 결과를 복사한 뒤, 아래의 결과 제출하기 버튼을 눌러 설문조사로 이동해 주세요. 설문조사에 결과를 붙여넣고 제출해 주시면 됩니다. 조사에 응해주셔서 감사합니다.</p>
+  <button id="copyButton" style="display: none;">결과 복사하기</button>
+  <button id="surveyButton" style="display: none;">결과 제출하기</button>
+  
   
   <script>
     // Define constants
@@ -16,7 +18,8 @@
     // Initialize game variables
     let attempts = 0;
     let successes = 0;
-    let studentNumber = prompt("Enter your student number:");
+    let studentNumber = prompt("학번을 입력하세요:");
+    let time = 0;
 
     // Randomly choose a letter pair
     let letterPair = LETTER_PAIRS[Math.floor(Math.random() * LETTER_PAIRS.length)];
@@ -40,11 +43,18 @@
     
     
     const surveyButton = document.getElementById("surveyButton");
+    const copyButton = document.getElementById("copyButton");
     const instructions = document.getElementById("instructions");
     surveyButton.addEventListener('click', function() {
         window.location.href = 'https://forms.gle/kCP8cxAWMiB43Eeq9';
     });
-
+    copyButton.addEventListener('click', function() {
+        navigator.clipboard.writeText(`학번 : ${studentNumber}, 기록 : ${time}`).then(function() {
+            alert('복사됨!');
+        }, function(err) {
+            alert('Could not copy text: ', err);
+        });
+    });
     // Game loop
     const gameLoop = setInterval(() => {
       // Clear the screen
@@ -57,20 +67,20 @@
           ctx.fillText(grid[row][col], col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2);
         }
       }
-
+    
       // Check game over condition
       if(successes === 15) {
         const elapsedTime = (Date.now() - startTime) / 1000;
-        alert(`Congratulations! You completed the game in ${elapsedTime.toFixed(2)} seconds.`);
+        //alert(`Congratulations! You completed the game in ${elapsedTime.toFixed(2)} seconds.`);
+        time = elapsedTime.toFixed(2);
+        successes = 100
         clearInterval(gameLoop);
-        navigator.clipboard.writeText(`Student number: ${studentNumber}, Time: ${elapsedTime.toFixed(2)}`).then(function() {
-            alert('Results copied to clipboard!');}, function(err) {
-            alert('Could not copy text: ', err);
-        });
         surveyButton.style.display = "block";
+        copyButton.style.display="block";
         instructions.style.display = "block";
       }
     }, 1000/60); // Run at 60 FPS
+    
 
     // Start time
     const startTime = Date.now();
