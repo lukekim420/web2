@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <canvas id="gameCanvas" width="600" height="600"></canvas>
+  <script>
+    // Define constants
+    const SCREEN_WIDTH = 600;
+    const SCREEN_HEIGHT = 600;
+    const GRID_SIZE = 10;
+    const CELL_SIZE = SCREEN_WIDTH / GRID_SIZE;
+    const LETTER_PAIRS = [["E", "F"], ["O", "Q"], ["S", "5"], ["C", "G"]];
+
+    // Initialize game variables
+    let attempts = 0;
+    let successes = 0;
+    let studentNumber = prompt("Enter your student number:");
+
+    // Randomly choose a letter pair
+    let letterPair = LETTER_PAIRS[Math.floor(Math.random() * LETTER_PAIRS.length)];
+    let previousLetterPair = letterPair;
+    let targetRow = Math.floor(Math.random() * GRID_SIZE);
+    let targetCol = Math.floor(Math.random() * GRID_SIZE);
+    let grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(letterPair[0]));
+    grid[targetRow][targetCol] = letterPair[1];
+
+    // Get canvas and context
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Set font
+    ctx.font = "30px Arial";
+
+    // Game loop
+    const gameLoop = setInterval(() => {
+      // Clear the screen
+      ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+      // Draw grid
+      for(let row = 0; row < GRID_SIZE; row++) {
+        for(let col = 0; col < GRID_SIZE; col++) {
+          // Render and display the letters
+          ctx.fillStyle = '#000000';
+          ctx.fillText(grid[row][col], col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2);
+        }
+      }
+
+      // Check game over condition
+      if(successes === 15) {
+        const elapsedTime = (Date.now() - startTime) / 1000;
+        alert(`Congratulations! You completed the game in ${elapsedTime.toFixed(2)} seconds.`);
+        clearInterval(gameLoop);
+      }
+    }, 1000/60); // Run at 60 FPS
+
+    // Start time
+    const startTime = Date.now();
+
+    // Event listener for mouse clicks
+    canvas.addEventListener("click", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickedRow = Math.floor((event.clientY - rect.top) / CELL_SIZE);
+      const clickedCol = Math.floor((event.clientX - rect.left) / CELL_SIZE);
+      if(grid[clickedRow][clickedCol] === letterPair[1]) {
+        // Correct guess
+        grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(letterPair[0]));
+        let newLetterPairIndex;
+        do {
+          newLetterPairIndex = Math.floor(Math.random() * LETTER_PAIRS.length);
+        } while(newLetterPairIndex === LETTER_PAIRS.indexOf(letterPair));
+        letterPair = LETTER_PAIRS[newLetterPairIndex];
+        targetRow = Math.floor(Math.random() * GRID_SIZE);
+        targetCol = Math.floor(Math.random() * GRID_SIZE);
+        grid[targetRow][targetCol] = letterPair[1];
+        successes++;
+      }
+      attempts++;
+    });
+  </script>
+</body>
+</html>
