@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <body>
-  <canvas id="gameCanvas" width="600" height="600"></canvas>
+  <canvas id="gameCanvas" width="600" height="600" style="background-color: #FFFFFF;"></canvas>
+  <p id="instructions" style="display: none;">아래의 결과 제출하기 버튼을 눌러 설문조사로 이동해 주세요. 설문조사에 결과를 붙여넣고 제출해 주시면 됩니다. 조사에 응해주셔서 감사합니다.</p>
+  <button id="surveyButton" style="display: none;">Go to survey</button>
+  
   <script>
     // Define constants
     const SCREEN_WIDTH = 600;
@@ -20,6 +23,8 @@
     let previousLetterPair = letterPair;
     let targetRow = Math.floor(Math.random() * GRID_SIZE);
     let targetCol = Math.floor(Math.random() * GRID_SIZE);
+
+    // Generate the grid with all cells containing the first letter of the pair except for one cell
     let grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(letterPair[0]));
     grid[targetRow][targetCol] = letterPair[1];
 
@@ -27,8 +32,18 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Set font
+    // Set font and color
     ctx.font = "30px Arial";
+    ctx.fillStyle = '#000000';
+
+    // Get buttons and assign events
+    
+    
+    const surveyButton = document.getElementById("surveyButton");
+    const instructions = document.getElementById("instructions");
+    surveyButton.addEventListener('click', function() {
+        window.location.href = 'http://www.example.com/survey';
+    });
 
     // Game loop
     const gameLoop = setInterval(() => {
@@ -39,16 +54,21 @@
       for(let row = 0; row < GRID_SIZE; row++) {
         for(let col = 0; col < GRID_SIZE; col++) {
           // Render and display the letters
-          ctx.fillStyle = '#000000';
           ctx.fillText(grid[row][col], col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2);
         }
       }
 
       // Check game over condition
-      if(successes === 15) {
+      if(successes === 1) {
         const elapsedTime = (Date.now() - startTime) / 1000;
         alert(`Congratulations! You completed the game in ${elapsedTime.toFixed(2)} seconds.`);
         clearInterval(gameLoop);
+        navigator.clipboard.writeText(`Student number: ${studentNumber}, Time: ${elapsedTime.toFixed(2)}`).then(function() {
+            alert('Results copied to clipboard!');}, function(err) {
+            alert('Could not copy text: ', err);
+        });
+        surveyButton.style.display = "block";
+        instructions.style.display = "block";
       }
     }, 1000/60); // Run at 60 FPS
 
@@ -62,7 +82,7 @@
       const clickedCol = Math.floor((event.clientX - rect.left) / CELL_SIZE);
       if(grid[clickedRow][clickedCol] === letterPair[1]) {
         // Correct guess
-        grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(letterPair[0]));
+        
         let newLetterPairIndex;
         do {
           newLetterPairIndex = Math.floor(Math.random() * LETTER_PAIRS.length);
@@ -70,6 +90,7 @@
         letterPair = LETTER_PAIRS[newLetterPairIndex];
         targetRow = Math.floor(Math.random() * GRID_SIZE);
         targetCol = Math.floor(Math.random() * GRID_SIZE);
+        grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(letterPair[0]));
         grid[targetRow][targetCol] = letterPair[1];
         successes++;
       }
