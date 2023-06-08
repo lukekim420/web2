@@ -42,7 +42,7 @@
     const surveyButton = document.getElementById("surveyButton");
     const instructions = document.getElementById("instructions");
     surveyButton.addEventListener('click', function() {
-        window.location.href = 'http://www.example.com/survey';
+        window.location.href = 'https://forms.gle/kCP8cxAWMiB43Eeq9';
     });
 
     // Game loop
@@ -59,7 +59,7 @@
       }
 
       // Check game over condition
-      if(successes === 1) {
+      if(successes === 15) {
         const elapsedTime = (Date.now() - startTime) / 1000;
         alert(`Congratulations! You completed the game in ${elapsedTime.toFixed(2)} seconds.`);
         clearInterval(gameLoop);
